@@ -8,8 +8,7 @@ using namespace std;
 #include <bits/stdc++.h>
 
 class Register
-{
-public:
+
     int value;
     Register() : value(0)
     {
