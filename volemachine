@@ -9,7 +9,7 @@ class Register
 {
 public:
     int value;
-    Register() : value(0)
+   
     {
     }
 };
