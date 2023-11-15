@@ -176,37 +176,7 @@ int main()
         cout << "Enter your choice: ";
         cin >> choice;
 
-        switch (choice)
-        {
-            case '1':
-            {
-                machine.LoadInstruction();
-                break;
-            }
-            case '2':
-            {
-                machine.fetch();
-                machine.execute();
-                break;
-            }
-            case '3':
-            {
-                while(!machine.halted()){
-                    machine.fetch();
-                    machine.execute();
-                }
-                break;
-            }
-            case '4':
-                machine.displayStatus();
-                break;
-            case '5':
-                cout << "Exiting program." << endl;
-                break;
-            default:
-                cout << "Invalid choice. Please try again." << endl;
-        }
-    } while (choice != '5');
+        
 
     return 0;
 }
