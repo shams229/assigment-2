@@ -5,8 +5,6 @@
 #include <sstream>
 
 using namespace std;
-#include <bits/stdc++.h>
-
 class Register
 {
 public:
