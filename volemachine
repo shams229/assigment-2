@@ -1,1 +1,132 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <fstream>
+#include <sstream>
 
+using namespace std;
+#include <bits/stdc++.h>
+
+class Register
+{
+public:
+    int value;
+    Register() : value(0)
+    {
+    }
+};
+
+class Memory
+{
+public:
+    vector<int> cells;
+
+    Memory(int size) : cells(size, 0)
+    {
+    }
+
+    int read(int address)
+    {
+        return cells[address];
+    }
+
+    void write(int address, int value)
+    {
+        cells[address] = value;
+    }
+};
+
+class VoleMachine
+{
+private:
+    Memory memory;
+    Register registers[16];
+    int pc;
+    int ir,opcode,regIndex,address;
+
+public:
+    VoleMachine(int memSize) : memory(memSize), pc(0), ir(0) {}
+
+    void LoadInstruction(){
+        string filename;
+        cout << "Enter filename: ";
+        cin >> filename;
+        fstream file (filename);
+        if(file.is_open()){
+            int first,bit1,sec,bit2,cnt=0;
+            while (file.good()){
+                file >> hex >> first >> sec >> bit2;
+                bit1= (first << 4) | sec;
+                memory.write(cnt++, bit1);
+                memory.write(cnt++, bit2);
+            }
+            cout << "Program loaded successfully." << endl;
+        }
+        else{
+            cout << "Error: Unable to open the file." << endl;
+        }
+    }
+
+    void addRegistersTwoComplement(int rIndex, int sIndex, int tIndex, Register *registers)
+    {
+        int sValue = registers[sIndex].value;
+        int tValue = registers[tIndex].value;
+        int sum = sValue + tValue;
+        registers[rIndex].value = sum;
+    }
+
+    void fetch()
+    {
+        opcode = (memory.read(pc) >> 4) & 0xF;
+        regIndex = memory.read(pc++) & 0xF;
+        address = memory.read(pc++);;
+    }
+
+    // bool validate() {
+
+    //     return true; // Return true for now (assuming all instructions are valid)
+    // }
+
+    bool halted(){
+        return opcode==0xC;
+    }
+
+    void execute()
+    {
+
+        switch (opcode)         //(RXY)
+        {
+            case 0x1: // LOAD the register R with the bit pattern found in the memory cell whose address is XY
+                registers[regIndex].value = memory.read(address);
+                break;
+            case 0x2: // LOAD the register R with the bit pattern XY.
+                registers[regIndex].value = address;
+                break;
+            case 0x3: // STORE the bit pattern found in register R in the memory cell whose address is XY.
+                memory.write(address, registers[regIndex].value);
+                break;
+            case 0x4: // (0RS) MOVE the bit pattern found in register R to register S.
+                registers[address & 0xF].value = registers[(address >> 4) & 0xF].value;
+                break;
+            case 0x5: // ADD the bit patterns in registers S and T as though they were two’s complement representations
+            {
+                int sIndex = (address >> 4) & 0xF;
+                int tIndex = address & 0xF;
+                addRegistersTwoComplement(regIndex, sIndex, tIndex, registers);
+                break;
+            }
+
+            case 0x6: // ADD the bit patterns in registers S and T as though they represented values in floating-point notation and leave the floating-point result in register R.
+            {
+                int sIndex = (address >> 4) & 0xF;
+                int tIndex = address & 0xF;
+                addRegistersTwoComplement(regIndex, sIndex, tIndex, registers);
+                break;
+            }
+           
+            }
+            default:
+                cout << "Invalid opcode: " << opcode << endl;
+                return;
+        }
+    }
